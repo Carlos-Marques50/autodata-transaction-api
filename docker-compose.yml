@@ -1,0 +1,26 @@
+# Dev: apenas infraestrutura local (banco + extras)
+# A API roda fora do Docker: npm run start:dev
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: autodata-mongo-dev
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data-dev:/data/db
+    networks:
+      - autodata-net
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+networks:
+  autodata-net:
+    driver: bridge
+
+volumes:
+  mongo-data-dev:
