@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
+import { ExportApiConfig } from '../../domain/entities/export-api.entity';
 import { ExportApiRepositoryPort } from '../../domain/ports/export-api.repository.port';
 import { CreateExportApiDto } from '../dtos/create-export-api.dto';
-import { ExportApiConfig } from '../../domain/entities/export-api.entity';
 
 @Injectable()
 export class CreateExportApiUseCase {
