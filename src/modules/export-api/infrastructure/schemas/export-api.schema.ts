@@ -13,6 +13,7 @@ export class ExportApiConfigSchemaClass {
   @Prop({ type: Object, default: {} }) authConfig: Record<string, string>;
   @Prop({ type: Object }) headers?: Record<string, string>;
   @Prop({ type: Object }) queryParams?: Record<string, string>;
+  @Prop({ type: Object }) pagination?: Record<string, unknown>;
   @Prop({ type: Object, required: true }) dtoSample: object;
   @Prop({ type: Object }) rateLimit?: { requests: number; windowMs: number };
 }

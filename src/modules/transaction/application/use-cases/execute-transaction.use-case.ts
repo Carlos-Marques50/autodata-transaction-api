@@ -33,70 +33,75 @@ export class ExecuteTransactionUseCase {
 
     await this.transactionRepo.updateStatus(transaction.id, 'running');
 
-    // 1. Buscar dados da API de exportação
-    let sourceRecords: Record<string, unknown>[];
-    try {
-      const raw = await this.httpClient.fetch(exportConfig);
-      sourceRecords = Array.isArray(raw) ? raw : [raw as Record<string, unknown>];
-    } catch (err: unknown) {
-      await this.transactionRepo.updateStatus(transaction.id, 'failed', new Date());
-      throw err;
-    }
+    const processRecords = async (records: Record<string, unknown>[]) => {
+      for (const record of records) {
+        // 2. Verificar compatibilidade
+        const { compatible, missingFields } = this.fieldMapper.checkCompatibility(
+          record,
+          transaction.fieldMapping,
+        );
+
+        if (!compatible) {
+          await this.migrationLogRepo.create({
+            transactionId: transaction.id,
+            status: 'failed',
+            sourceData: record,
+            error: `Campos ausentes no registro: ${missingFields.join(', ')}`,
+            retryCount: 0,
+            maxRetries: MAX_RETRIES,
+          });
+          failedCount++;
+          continue;
+        }
+
+        try {
+          // 3. Converter / mapear campos
+          const converted = this.fieldMapper.map(record, transaction.fieldMapping);
+
+          // 4. Enviar para a API de importação
+          await this.httpClient.send(importConfig, converted);
+
+          await this.migrationLogRepo.create({
+            transactionId: transaction.id,
+            status: 'success',
+            sourceData: record,
+            convertedData: converted,
+            retryCount: 0,
+            maxRetries: MAX_RETRIES,
+          });
+
+          successCount++;
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : String(err);
+
+          // 5. Falhou → salva no banco local como cache para retry
+          await this.migrationLogRepo.create({
+            transactionId: transaction.id,
+            status: 'failed',
+            sourceData: record,
+            error: message,
+            retryCount: 0,
+            maxRetries: MAX_RETRIES,
+          });
+          failedCount++;
+        }
+      }
+    };
 
     let successCount = 0;
     let failedCount = 0;
 
-    for (const record of sourceRecords) {
-      // 2. Verificar compatibilidade
-      const { compatible, missingFields } = this.fieldMapper.checkCompatibility(
-        record,
-        transaction.fieldMapping,
-      );
-
-      if (!compatible) {
-        await this.migrationLogRepo.create({
-          transactionId: transaction.id,
-          status: 'failed',
-          sourceData: record,
-          error: `Campos ausentes no registro: ${missingFields.join(', ')}`,
-          retryCount: 0,
-          maxRetries: MAX_RETRIES,
-        });
-        failedCount++;
-        continue;
+    try {
+      if (exportConfig.pagination) {
+        await this.httpClient.fetchPages(exportConfig, processRecords);
+      } else {
+        const raw = await this.httpClient.fetch(exportConfig);
+        const sourceRecords = Array.isArray(raw) ? raw : [raw as Record<string, unknown>];
+        await processRecords(sourceRecords);
       }
-
-      try {
-        // 3. Converter / mapear campos
-        const converted = this.fieldMapper.map(record, transaction.fieldMapping);
-
-        // 4. Enviar para a API de importação
-        await this.httpClient.send(importConfig, converted);
-
-        await this.migrationLogRepo.create({
-          transactionId: transaction.id,
-          status: 'success',
-          sourceData: record,
-          convertedData: converted,
-          retryCount: 0,
-          maxRetries: MAX_RETRIES,
-        });
-
-        successCount++;
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-
-        // 5. Falhou → salva no banco local como cache para retry
-        await this.migrationLogRepo.create({
-          transactionId: transaction.id,
-          status: 'failed',
-          sourceData: record,
-          error: message,
-          retryCount: 0,
-          maxRetries: MAX_RETRIES,
-        });
-        failedCount++;
-      }
+    } catch (err: unknown) {
+      await this.transactionRepo.updateStatus(transaction.id, 'failed', new Date());
+      throw err;
     }
 
     const finalStatus =
