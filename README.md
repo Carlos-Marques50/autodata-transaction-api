@@ -195,6 +195,31 @@ Exemplo de criação:
 }
 ```
 
+#### Suporte a Paginação na Export API
+Para evitar estouro de memória ao ler grandes volumes da API de origem, é possível configurar paginação na export API. O motor fará requisições iterativas em lotes e processará cada página antes de buscar a próxima.
+
+Exemplo com paginação por página:
+
+```json
+{
+  "name": "Legacy API",
+  "baseUrl": "https://legacy.example.com",
+  "endpoint": "/customers",
+  "method": "GET",
+  "authType": "none",
+  "dtoSample": {
+    "customer_id": 1,
+    "name": "Ana"
+  },
+  "pagination": {
+    "type": "page",
+    "pageParam": "page",
+    "limitParam": "limit",
+    "limitValue": 100
+  }
+}
+```
+
 ### 2. Import APIs
 
 - `POST /import-apis`

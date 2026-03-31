@@ -17,6 +17,7 @@ export class CreateExportApiUseCase {
       authConfig: dto.authConfig ?? {},
       headers: dto.headers,
       queryParams: dto.queryParams,
+      pagination: dto.pagination,
       dtoSample: dto.dtoSample,
       rateLimit: dto.rateLimit,
     });

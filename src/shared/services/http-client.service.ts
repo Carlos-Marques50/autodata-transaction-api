@@ -32,6 +32,66 @@ export class HttpClientService {
     return response.data;
   }
 
+  async fetchPages(
+    config: ExportApiConfig,
+    onPage: (records: Record<string, unknown>[]) => Promise<void>,
+  ): Promise<void> {
+    if (!config.pagination) {
+      const raw = await this.fetch(config);
+      await onPage(this.extractRecords(raw));
+      return;
+    }
+
+    const pagination = config.pagination;
+    const pageParam = pagination.pageParam ?? 'page';
+    const sizeParam = pagination.sizeParam ?? pagination.limitParam ?? 'pageSize';
+    let page = pagination.initialPage ?? 1;
+    const pageSize = pagination.pageSize ?? pagination.limitValue ?? 100;
+
+    while (true) {
+      await this.applyRateLimit(config.id, config.rateLimit);
+      const headers = this.buildHeaders(config.authType, config.authConfig, config.headers);
+      const response = await firstValueFrom(
+        this.httpService.request({
+          method: config.method,
+          url: `${config.baseUrl}${config.endpoint}`,
+          headers,
+          params: {
+            ...(config.queryParams ?? {}),
+            [pageParam]: page,
+            [sizeParam]: pageSize,
+          },
+        }),
+      );
+
+      const records = this.extractRecords(response.data, pagination.dataPath);
+      if (records.length === 0) break;
+
+      await onPage(records);
+      if (records.length < pageSize) break;
+      page += 1;
+    }
+  }
+
+  private extractRecords(raw: unknown, dataPath?: string): Record<string, unknown>[] {
+    const data = dataPath ? this.resolvePath(raw, dataPath) : raw;
+
+    if (Array.isArray(data)) return data as Record<string, unknown>[];
+    if (data === null || data === undefined) return [];
+    if (typeof data === 'object') return [data as Record<string, unknown>];
+
+    throw new Error('Export API retornou um payload inválido; esperado array ou objeto.');
+  }
+
+  private resolvePath(value: unknown, path: string): unknown {
+    return path.split('.').reduce<unknown>((current, key) => {
+      if (current && typeof current === 'object' && key in current) {
+        return (current as Record<string, unknown>)[key];
+      }
+      return undefined;
+    }, value);
+  }
+
   async send(
     config: ImportApiConfig,
     data: Record<string, unknown>,

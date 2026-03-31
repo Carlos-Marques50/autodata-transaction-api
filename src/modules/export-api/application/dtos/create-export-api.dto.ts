@@ -2,9 +2,11 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsEnum,
   IsNotEmpty,
+  IsNumber,
   IsObject,
   IsOptional,
   IsString,
+  Min,
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
@@ -17,6 +19,54 @@ class RateLimitDto {
   @ApiProperty({ example: 60000 })
   @IsNotEmpty()
   windowMs!: number;
+}
+
+class PaginationDto {
+  @ApiPropertyOptional({ example: 'page' })
+  @IsOptional()
+  @IsString()
+  type?: 'page' | 'offset';
+
+  @ApiPropertyOptional({ example: 'page' })
+  @IsOptional()
+  @IsString()
+  pageParam?: string;
+
+  @ApiPropertyOptional({ example: 'pageSize' })
+  @IsOptional()
+  @IsString()
+  sizeParam?: string;
+
+  @ApiPropertyOptional({ example: 'limit' })
+  @IsOptional()
+  @IsString()
+  limitParam?: string;
+
+  @ApiPropertyOptional({ example: 1 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  initialPage?: number;
+
+  @ApiPropertyOptional({ example: 100 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1)
+  pageSize?: number;
+
+  @ApiPropertyOptional({ example: 10 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1)
+  limitValue?: number;
+
+  @ApiPropertyOptional({ example: 'data' })
+  @IsOptional()
+  @IsString()
+  dataPath?: string;
 }
 
 export class CreateExportApiDto {
@@ -57,6 +107,12 @@ export class CreateExportApiDto {
   @IsOptional()
   @IsObject()
   queryParams?: Record<string, string>;
+
+  @ApiPropertyOptional({ type: PaginationDto })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => PaginationDto)
+  pagination?: PaginationDto;
 
   @ApiProperty({
     description:

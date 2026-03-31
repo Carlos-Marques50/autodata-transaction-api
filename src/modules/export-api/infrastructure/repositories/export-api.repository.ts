@@ -48,6 +48,7 @@ export class ExportApiRepository implements ExportApiRepositoryPort {
       authConfig: obj.authConfig,
       headers: obj.headers,
       queryParams: obj.queryParams,
+      pagination: obj.pagination,
       dtoSample: obj.dtoSample,
       rateLimit: obj.rateLimit,
       createdAt: obj.createdAt,
