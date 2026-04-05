@@ -170,10 +170,11 @@ npm run test:cov
 
 ### 1. Export APIs
 
-- `POST /export-apis`
-- `GET /export-apis`
-- `GET /export-apis/:id`
-- `DELETE /export-apis/:id`
+- `POST /export-apis` - Criar configuração
+- `GET /export-apis` - Listar todas
+- `GET /export-apis/:id` - Buscar por ID
+- `PUT /export-apis/:id` - Atualizar configuração
+- `DELETE /export-apis/:id` - Remover
 
 Exemplo de criação:
 
@@ -197,10 +198,11 @@ Exemplo de criação:
 
 ### 2. Import APIs
 
-- `POST /import-apis`
-- `GET /import-apis`
-- `GET /import-apis/:id`
-- `DELETE /import-apis/:id`
+- `POST /import-apis` - Criar configuração
+- `GET /import-apis` - Listar todas
+- `GET /import-apis/:id` - Buscar por ID
+- `PUT /import-apis/:id` - Atualizar configuração
+- `DELETE /import-apis/:id` - Remover
 
 Exemplo de criação:
 
@@ -220,11 +222,12 @@ Exemplo de criação:
 
 ### 3. Transactions
 
-- `POST /transactions/check-compatibility`
-- `POST /transactions`
-- `GET /transactions`
-- `POST /transactions/:id/execute`
-- `DELETE /transactions/:id`
+- `POST /transactions/check-compatibility` - Verificar compatibilidade de campos
+- `POST /transactions` - Criar transação
+- `GET /transactions` - Listar todas
+- `GET /transactions/:id` - Buscar por ID
+- `POST /transactions/:id/execute` - Executar migração
+- `DELETE /transactions/:id` - Remover
 
 #### `POST /transactions/check-compatibility`
 

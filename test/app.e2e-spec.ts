@@ -35,6 +35,9 @@ import type {
   LogStatus,
   MigrationLog,
 } from '../src/modules/migration-log/domain/entities/migration-log.entity';
+import { UpdateExportApiUseCase } from '../src/modules/export-api/application/use-cases/update-export-api.use-case';
+import { FindTransactionByIdUseCase } from '../src/modules/transaction/application/use-cases/find-transaction-by-id.use-case';
+import { UpdateImportApiUseCase } from '../src/modules/import-api/application/use-cases/update-import-api.use-case';
 
 class InMemoryExportApiRepository implements ExportApiRepositoryPort {
   private readonly items: ExportApiConfig[] = [];
@@ -57,6 +60,16 @@ class InMemoryExportApiRepository implements ExportApiRepositoryPort {
 
   async findById(id: string): Promise<ExportApiConfig | null> {
     return this.items.find((item) => item.id === id) ?? null;
+  }
+
+  async update(
+    id: string,
+    data: Partial<Omit<ExportApiConfig, 'id' | 'createdAt' | 'updatedAt'>>,
+  ): Promise<ExportApiConfig> {
+    const item = this.items.find((item) => item.id === id);
+    if (!item) throw new Error('Not found');
+    Object.assign(item, data, { updatedAt: new Date() });
+    return item;
   }
 
   async delete(id: string): Promise<void> {
@@ -86,6 +99,16 @@ class InMemoryImportApiRepository implements ImportApiRepositoryPort {
 
   async findById(id: string): Promise<ImportApiConfig | null> {
     return this.items.find((item) => item.id === id) ?? null;
+  }
+
+  async update(
+    id: string,
+    data: Partial<Omit<ImportApiConfig, 'id' | 'createdAt' | 'updatedAt'>>,
+  ): Promise<ImportApiConfig> {
+    const item = this.items.find((item) => item.id === id);
+    if (!item) throw new Error('Not found');
+    Object.assign(item, data, { updatedAt: new Date() });
+    return item;
   }
 
   async delete(id: string): Promise<void> {
@@ -200,13 +223,16 @@ describe('Migration Flow (e2e)', () => {
         CreateExportApiUseCase,
         FindAllExportApisUseCase,
         FindExportApiByIdUseCase,
+        UpdateExportApiUseCase,
         DeleteExportApiUseCase,
         CreateImportApiUseCase,
         FindAllImportApisUseCase,
         FindImportApiByIdUseCase,
+        UpdateImportApiUseCase,
         DeleteImportApiUseCase,
         CreateTransactionUseCase,
         FindAllTransactionsUseCase,
+        FindTransactionByIdUseCase,
         ExecuteTransactionUseCase,
         CheckCompatibilityUseCase,
         FindLogsUseCase,

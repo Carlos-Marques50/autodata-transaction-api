@@ -6,5 +6,9 @@ export abstract class ExportApiRepositoryPort {
   ): Promise<ExportApiConfig>;
   abstract findAll(): Promise<ExportApiConfig[]>;
   abstract findById(id: string): Promise<ExportApiConfig | null>;
+  abstract update(
+    id: string,
+    data: Partial<Omit<ExportApiConfig, 'id' | 'createdAt' | 'updatedAt'>>,
+  ): Promise<ExportApiConfig>;
   abstract delete(id: string): Promise<void>;
 }

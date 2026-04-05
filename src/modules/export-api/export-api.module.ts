@@ -1,12 +1,16 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ExportApiConfigSchemaClass, ExportApiConfigSchema } from './infrastructure/schemas/export-api.schema';
+import {
+  ExportApiConfigSchemaClass,
+  ExportApiConfigSchema,
+} from './infrastructure/schemas/export-api.schema';
 import { ExportApiRepository } from './infrastructure/repositories/export-api.repository';
 import { ExportApiRepositoryPort } from './domain/ports/export-api.repository.port';
 import { ExportApiController } from './infrastructure/controllers/export-api.controller';
 import { CreateExportApiUseCase } from './application/use-cases/create-export-api.use-case';
 import { FindAllExportApisUseCase } from './application/use-cases/find-all-export-apis.use-case';
 import { FindExportApiByIdUseCase } from './application/use-cases/find-export-api-by-id.use-case';
+import { UpdateExportApiUseCase } from './application/use-cases/update-export-api.use-case';
 import { DeleteExportApiUseCase } from './application/use-cases/delete-export-api.use-case';
 
 @Module({
@@ -21,6 +25,7 @@ import { DeleteExportApiUseCase } from './application/use-cases/delete-export-ap
     CreateExportApiUseCase,
     FindAllExportApisUseCase,
     FindExportApiByIdUseCase,
+    UpdateExportApiUseCase,
     DeleteExportApiUseCase,
   ],
   exports: [ExportApiRepositoryPort],
