@@ -15,6 +15,7 @@ import { CreateTransactionUseCase } from '../../application/use-cases/create-tra
 import { CheckCompatibilityUseCase } from '../../application/use-cases/check-compatibility.use-case';
 import { ExecuteTransactionUseCase } from '../../application/use-cases/execute-transaction.use-case';
 import { FindAllTransactionsUseCase } from '../../application/use-cases/find-all-transactions.use-case';
+import { FindTransactionByIdUseCase } from '../../application/use-cases/find-transaction-by-id.use-case';
 import { TransactionRepositoryPort } from '../../domain/ports/transaction.repository.port';
 
 @ApiTags('3. Transactions')
@@ -23,6 +24,7 @@ export class TransactionController {
   constructor(
     private readonly createUseCase: CreateTransactionUseCase,
     private readonly findAllUseCase: FindAllTransactionsUseCase,
+    private readonly findByIdUseCase: FindTransactionByIdUseCase,
     private readonly executeUseCase: ExecuteTransactionUseCase,
     private readonly checkCompatibilityUseCase: CheckCompatibilityUseCase,
     private readonly transactionRepo: TransactionRepositoryPort,
@@ -47,6 +49,12 @@ export class TransactionController {
   @ApiOperation({ summary: 'Listar todas as transações' })
   findAll() {
     return this.findAllUseCase.execute();
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Buscar transação por ID' })
+  findById(@Param('id') id: string) {
+    return this.findByIdUseCase.execute(id);
   }
 
   @Post(':id/execute')

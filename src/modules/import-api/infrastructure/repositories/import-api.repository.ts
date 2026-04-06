@@ -32,6 +32,16 @@ export class ImportApiRepository implements ImportApiRepositoryPort {
     return doc ? this.toEntity(doc) : null;
   }
 
+  async update(
+    id: string,
+    data: Partial<Omit<ImportApiConfig, 'id' | 'createdAt' | 'updatedAt'>>,
+  ): Promise<ImportApiConfig> {
+    const doc = await this.model
+      .findByIdAndUpdate(id, data, { new: true })
+      .exec();
+    return this.toEntity(doc!);
+  }
+
   async delete(id: string): Promise<void> {
     await this.model.findByIdAndDelete(id).exec();
   }

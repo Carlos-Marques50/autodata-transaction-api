@@ -7,13 +7,16 @@ import {
   HttpStatus,
   Param,
   Post,
+  Patch,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateExportApiDto } from '../../application/dtos/create-export-api.dto';
+import { UpdateExportApiDto } from '../../application/dtos/update-export-api.dto';
 import { CreateExportApiUseCase } from '../../application/use-cases/create-export-api.use-case';
 import { DeleteExportApiUseCase } from '../../application/use-cases/delete-export-api.use-case';
 import { FindAllExportApisUseCase } from '../../application/use-cases/find-all-export-apis.use-case';
 import { FindExportApiByIdUseCase } from '../../application/use-cases/find-export-api-by-id.use-case';
+import { UpdateExportApiUseCase } from '../../application/use-cases/update-export-api.use-case';
 
 @ApiTags('1. Export APIs')
 @Controller('export-apis')
@@ -22,11 +25,14 @@ export class ExportApiController {
     private readonly createUseCase: CreateExportApiUseCase,
     private readonly findAllUseCase: FindAllExportApisUseCase,
     private readonly findByIdUseCase: FindExportApiByIdUseCase,
+    private readonly updateUseCase: UpdateExportApiUseCase,
     private readonly deleteUseCase: DeleteExportApiUseCase,
   ) {}
 
   @Post()
-  @ApiOperation({ summary: 'Cadastrar configuração de API de exportação + DTO schema' })
+  @ApiOperation({
+    summary: 'Cadastrar configuração de API de exportação + DTO schema',
+  })
   create(@Body() dto: CreateExportApiDto) {
     return this.createUseCase.execute(dto);
   }
@@ -41,6 +47,12 @@ export class ExportApiController {
   @ApiOperation({ summary: 'Buscar API de exportação por ID' })
   findById(@Param('id') id: string) {
     return this.findByIdUseCase.execute(id);
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'Atualizar API de exportação' })
+  update(@Param('id') id: string, @Body() dto: UpdateExportApiDto) {
+    return this.updateUseCase.execute(id, dto);
   }
 
   @Delete(':id')

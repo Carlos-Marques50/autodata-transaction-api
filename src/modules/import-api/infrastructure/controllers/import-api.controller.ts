@@ -7,13 +7,16 @@ import {
   HttpStatus,
   Param,
   Post,
+  Patch,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateImportApiDto } from '../../application/dtos/create-import-api.dto';
+import { UpdateImportApiDto } from '../../application/dtos/update-import-api.dto';
 import { CreateImportApiUseCase } from '../../application/use-cases/create-import-api.use-case';
 import { DeleteImportApiUseCase } from '../../application/use-cases/delete-import-api.use-case';
 import { FindAllImportApisUseCase } from '../../application/use-cases/find-all-import-apis.use-case';
 import { FindImportApiByIdUseCase } from '../../application/use-cases/find-import-api-by-id.use-case';
+import { UpdateImportApiUseCase } from '../../application/use-cases/update-import-api.use-case';
 
 @ApiTags('2. Import APIs')
 @Controller('import-apis')
@@ -22,11 +25,14 @@ export class ImportApiController {
     private readonly createUseCase: CreateImportApiUseCase,
     private readonly findAllUseCase: FindAllImportApisUseCase,
     private readonly findByIdUseCase: FindImportApiByIdUseCase,
+    private readonly updateUseCase: UpdateImportApiUseCase,
     private readonly deleteUseCase: DeleteImportApiUseCase,
   ) {}
 
   @Post()
-  @ApiOperation({ summary: 'Cadastrar configuração de API de importação + DTO schema' })
+  @ApiOperation({
+    summary: 'Cadastrar configuração de API de importação + DTO schema',
+  })
   create(@Body() dto: CreateImportApiDto) {
     return this.createUseCase.execute(dto);
   }
@@ -41,6 +47,12 @@ export class ImportApiController {
   @ApiOperation({ summary: 'Buscar API de importação por ID' })
   findById(@Param('id') id: string) {
     return this.findByIdUseCase.execute(id);
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'Atualizar API de importação' })
+  update(@Param('id') id: string, @Body() dto: UpdateImportApiDto) {
+    return this.updateUseCase.execute(id, dto);
   }
 
   @Delete(':id')
