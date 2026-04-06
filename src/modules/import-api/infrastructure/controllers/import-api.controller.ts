@@ -7,7 +7,7 @@ import {
   HttpStatus,
   Param,
   Post,
-  Put,
+  Patch,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateImportApiDto } from '../../application/dtos/create-import-api.dto';
@@ -49,7 +49,7 @@ export class ImportApiController {
     return this.findByIdUseCase.execute(id);
   }
 
-  @Put(':id')
+  @Patch(':id')
   @ApiOperation({ summary: 'Atualizar API de importação' })
   update(@Param('id') id: string, @Body() dto: UpdateImportApiDto) {
     return this.updateUseCase.execute(id, dto);

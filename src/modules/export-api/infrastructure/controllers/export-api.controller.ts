@@ -7,7 +7,7 @@ import {
   HttpStatus,
   Param,
   Post,
-  Put,
+  Patch,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateExportApiDto } from '../../application/dtos/create-export-api.dto';
@@ -49,7 +49,7 @@ export class ExportApiController {
     return this.findByIdUseCase.execute(id);
   }
 
-  @Put(':id')
+  @Patch(':id')
   @ApiOperation({ summary: 'Atualizar API de exportação' })
   update(@Param('id') id: string, @Body() dto: UpdateExportApiDto) {
     return this.updateUseCase.execute(id, dto);
